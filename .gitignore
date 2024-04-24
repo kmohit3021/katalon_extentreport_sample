@@ -5,3 +5,9 @@
 /.classpath
 .svn/
 Reports
+
+
+
+.cache/
+Extent/
+Screenshots/
