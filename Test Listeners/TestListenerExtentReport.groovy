@@ -10,10 +10,12 @@ import com.kms.katalon.core.annotation.BeforeTestSuite
 import com.kms.katalon.core.configuration.RunConfiguration
 import com.kms.katalon.core.context.TestCaseContext
 import com.kms.katalon.core.context.TestSuiteContext
+import com.kms.katalon.core.util.KeywordUtil
 import com.kms.katalon.core.webui.driver.DriverFactory
 import com.kms.katalon.core.webui.driver.SmartWaitWebDriver
 import com.relevantcodes.extentreports.ExtentReports
 import com.relevantcodes.extentreports.ExtentTest
+import com.relevantcodes.extentreports.LogStatus
 import java.nio.file.Paths;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -30,6 +32,22 @@ class TestListenerExtentReport {
 	public static String execID
 	public static String testcasename
 
+	TestListenerExtentReport() {
+		modifyKeywordUtil()
+	}
+	
+	private void modifyKeywordUtil() {
+		KeywordUtil.metaClass."static".invokeMethod = { String name, args ->
+			if (name == "logInfo") {
+				TestListenerExtentReport.extentTest.log(LogStatus.INFO, args[0])
+			} else if (name == "markPassed") {
+				TestListenerExtentReport.extentTest.log(LogStatus.PASS, args[0])
+			} else if (name == "markFailed") {
+				TestListenerExtentReport.extentTest.log(LogStatus.FAIL, args[0])
+			}
+			return delegate.metaClass.getMetaMethod(name, args).invoke(delegate, args)
+		}
+	}
 	
 	@BeforeTestSuite
 	def deleteHtmlReport() {
